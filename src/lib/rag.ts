@@ -1,4 +1,4 @@
-import { MemoryVectorStore } from "memory-vector-store";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
@@ -43,10 +43,12 @@ class RAGService {
       })
     );
 
-    this.vectorStore = new MemoryVectorStore(new OpenAIEmbeddings({
-        apiKey: this.apiKey
-    }));
-    await this.vectorStore.addDocuments(texts);
+    this.vectorStore = await MemoryVectorStore.fromDocuments(
+      texts,
+      new OpenAIEmbeddings({
+        apiKey: this.apiKey,
+      })
+    );
   }
 
   public async getExplanation(question: string): Promise<string> {
