@@ -2,7 +2,7 @@
 
 import Editor from '@monaco-editor/react';
 
-const CodeEditor = ({ value, onChange }: { value: string, onChange: (value: string | undefined) => void }) => {
+const CodeEditor = ({ value, onChange, readOnly }: { value: string, onChange?: (value: string | undefined) => void, readOnly?: boolean }) => {
   return (
     <Editor
       height="400px"
@@ -11,6 +11,7 @@ const CodeEditor = ({ value, onChange }: { value: string, onChange: (value: stri
       value={value}
       onChange={onChange}
       theme="vs-dark"
+      options={{ readOnly: readOnly || false }}
     />
   );
 };
