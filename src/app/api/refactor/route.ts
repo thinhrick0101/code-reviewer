@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const stream = await chain.stream([
-      new HumanMessage(`Please refactor the following code:\n\n\`\`\`\n${code}\n\`\`\``),
+      new HumanMessage(`Please refactor the following code. Return only the raw, refactored code, without any markdown fences, explanations, or other surrounding text.\n\nCode:\n\`\`\`\n${code}\n\`\`\``),
     ]);
     
     if (submissionId) {
