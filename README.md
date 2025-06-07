@@ -2,7 +2,6 @@
 
 This developer productivity tool, built with Next.js, leverages Large Language Models to significantly improve code quality. It performs comprehensive reviews of single code snippets, offers intelligent refactoring suggestions, and provides context-aware explanations for its feedback. All review sessions are saved and can be revisited, creating a persistent history of your code's evolution.
 
-![AI Code Reviewer Screenshot](https://i.imgur.com/7s1D8gA.png)
 
 ## Table of Contents
 - [Key Features](#-key-features)
