@@ -9,7 +9,10 @@ const Header = () => {
           <Bot className="h-7 w-7 text-blue-400" />
           <span>AI Code Reviewer</span>
         </Link>
-        <nav>
+        <nav className="flex items-center space-x-6">
+          <Link href="/history" className="text-gray-300 hover:text-white transition-colors">
+            History
+          </Link>
           <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
             About
           </Link>

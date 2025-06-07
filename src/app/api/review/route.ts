@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ChatOpenAI } from "@langchain/openai";
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { HumanMessage } from "@langchain/core/messages";
+import dbConnect from '@/lib/dbConnect';
+import Submission from '@/models/Submission';
 
 export async function POST(req: NextRequest) {
   const { code } = await req.json();
@@ -65,9 +67,26 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await runnable.invoke([
-      new HumanMessage(`Please review the following code:\n\n\`\`\`\n${code}\n\`\`\``),
+      new HumanMessage(`As a Principal Software Engineer doing a code review, provide a concise analysis of the following code. 
+Your feedback should be direct and actionable.
+Critically evaluate the code for style, performance, and security.
+You MUST include the 'suggestions' array in your response. If you have no suggestions, return an empty array.
+
+Code:
+\`\`\`
+${code}
+\`\`\``),
     ]);
-    return NextResponse.json(result);
+
+    await dbConnect();
+
+    const submission = await Submission.create({
+       code: code,
+       review: result,
+    });
+
+    return NextResponse.json({ ...result, _id: submission._id });
+
   } catch (error) {
     console.error('Error calling AI model:', error);
     return NextResponse.json({ error: 'Failed to review code.' }, { status: 500 });

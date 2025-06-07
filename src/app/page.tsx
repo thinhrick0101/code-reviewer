@@ -55,10 +55,24 @@ export default function HomePage() {
       const res = await fetch('/api/refactor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, submissionId: reviewResult._id }),
       });
-      const data = await res.json();
-      setRefactoredCode(data.refactoredCode);
+
+      if (!res.body) {
+        throw new Error("Response body is null");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+        const chunk = decoder.decode(value);
+        setRefactoredCode((prev) => prev + chunk);
+      }
     } catch (error) {
       console.error("Failed to refactor code:", error);
     } finally {
@@ -167,23 +181,25 @@ export default function HomePage() {
                     </ul>
                   </div>
                 )}
-                <button
-                  onClick={handleRefactor}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg mt-6 flex items-center justify-center transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isRefactoring}
-                >
-                  {isRefactoring ? (
-                    <>
-                      <Zap className="animate-pulse h-5 w-5 mr-2" />
-                      Refactoring...
-                    </>
-                  ) : (
-                     <>
-                      <Zap className="h-5 w-5 mr-2" />
-                      Refactor Code
-                    </>
-                  )}
-                </button>
+                {reviewResult && (
+                    <button
+                      onClick={handleRefactor}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg mt-6 flex items-center justify-center transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isRefactoring}
+                    >
+                      {isRefactoring ? (
+                        <>
+                          <Zap className="animate-pulse h-5 w-5 mr-2" />
+                          Refactoring...
+                        </>
+                      ) : (
+                         <>
+                          <Zap className="h-5 w-5 mr-2" />
+                          Refactor Code
+                        </>
+                      )}
+                    </button>
+                )}
               </div>
             )}
             {reviewResult && reviewResult.error && (
