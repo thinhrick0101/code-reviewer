@@ -9,12 +9,15 @@ export default function HomePage() {
   const [refactoredCode, setRefactoredCode] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
   const [isRefactoring, setIsRefactoring] = useState(false);
+  const [explanation, setExplanation] = useState('');
+  const [isExplaining, setIsExplaining] = useState(false);
 
   const handleReview = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsReviewing(true);
     setReviewResult(null);
     setRefactoredCode('');
+    setExplanation('');
 
     const res = await fetch('/api/review', {
       method: 'POST',
@@ -32,6 +35,7 @@ export default function HomePage() {
   const handleRefactor = async () => {
     setIsRefactoring(true);
     setRefactoredCode('');
+    setExplanation('');
 
     const res = await fetch('/api/refactor', {
       method: 'POST',
@@ -45,6 +49,23 @@ export default function HomePage() {
     setRefactoredCode(data.refactoredCode);
     setIsRefactoring(false);
   };
+
+  const handleExplain = async (suggestion: string) => {
+    setIsExplaining(true);
+    setExplanation('');
+
+    const res = await fetch('/api/rag', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: suggestion }),
+    });
+
+    const data = await res.json();
+    setExplanation(data.explanation);
+    setIsExplaining(false);
+  }
 
   return (
     <div>
@@ -73,6 +94,18 @@ export default function HomePage() {
           >
             {isRefactoring ? 'Refactoring...' : 'Refactor Code'}
           </button>
+            {reviewResult.suggestions.map((suggestion: string, index: number) => (
+                <div key={index} className="mt-4">
+                    <p>{suggestion}</p>
+                    <button
+                        onClick={() => handleExplain(suggestion)}
+                        className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded mt-2"
+                        disabled={isExplaining}
+                    >
+                        {isExplaining ? 'Thinking...' : 'Explain'}
+                    </button>
+                </div>
+            ))}
         </div>
       )}
       {isRefactoring && <p className="mt-4">Refactoring your code...</p>}
@@ -84,6 +117,15 @@ export default function HomePage() {
           </div>
         </div>
       )}
+        {isExplaining && <p className="mt-4">Generating explanation...</p>}
+        {explanation && (
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold mb-4">Explanation</h2>
+                <div className="bg-gray-800 text-white p-4 rounded">
+                    <p>{explanation}</p>
+                </div>
+            </div>
+        )}
     </div>
   );
 }
